@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center">
+    <div class="card w-96 bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title justify-center text-2xl font-bold mb-6">Registrieren</h2>
+            <form method="POST" class="space-y-4">
+                <div class="form-control w-full">
+                    <label class="label">
+                        <span class="label-text">Benutzername</span>
+                    </label>
+                    <input type="text" name="username" class="input input-bordered w-full" required />
+                </div>
+                <div class="form-control w-full">
+                    <label class="label">
+                        <span class="label-text">Passwort</span>
+                    </label>
+                    <input type="password" name="password" class="input input-bordered w-full" required />
+                </div>
+                <div class="form-control mt-6">
+                    <button type="submit" class="btn btn-primary">Registrieren</button>
+                </div>
+            </form>
+            <div class="divider">ODER</div>
+            <div class="text-center">
+                <p class="text-sm">Bereits ein Konto?</p>
+                <a href="{{ url_for('main.login') }}" class="btn btn-ghost btn-sm">Anmelden</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

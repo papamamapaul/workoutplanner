@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- New Workout Plan Form -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Neuer Trainingsplan</h2>
+            <form method="POST" class="space-y-4">
+                <div class="form-control w-full">
+                    <label class="label">
+                        <span class="label-text">Name des Trainingsplans</span>
+                    </label>
+                    <input type="text" name="name" class="input input-bordered w-full" required />
+                </div>
+                <div class="form-control mt-6">
+                    <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Trainingsplan erstellen
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Workout Plans List -->
+    <div class="md:col-span-2">
+        <h2 class="text-2xl font-bold mb-6">Meine Trainingspläne</h2>
+        {% if plans %}
+        <div class="space-y-4">
+            {% for plan in plans %}
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="card-title">{{ plan.name }}</h3>
+                            {% if plan.exercises %}
+                            <div class="mt-2">
+                                <div class="flex flex-wrap gap-2">
+                                    {% for exercise in plan.exercises %}
+                                    <div class="badge badge-secondary">{{ exercise.name }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <p class="text-sm opacity-70">Keine Übungen hinzugefügt</p>
+                            {% endif %}
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="{{ url_for('main.edit_workout_plan', plan_id=plan.id) }}" class="btn btn-square btn-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </a>
+                            <a href="{{ url_for('main.start_workout', plan_id=plan.id) }}" class="btn btn-primary btn-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Starten
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Noch keine Trainingspläne erstellt.</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
