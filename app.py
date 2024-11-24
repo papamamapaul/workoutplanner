@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
@@ -12,6 +13,7 @@ if app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgres://'):
     app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace('postgres://', 'postgresql://', 1)
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -311,4 +313,6 @@ def workout_detail(workout_id):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        # Ensure all models are registered with SQLAlchemy
+        from app import User, Exercise, WorkoutPlan, WorkoutPlanExercise, Workout, WorkoutExercise, ExerciseSet
     app.run(debug=True, port=5001)
