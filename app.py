@@ -3,10 +3,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'deine_secret_key_hier'  # In Produktion sicher ändern!
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///workout.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'deine_secret_key_hier')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///workout.db')
+if app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgres://'):
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace('postgres://', 'postgresql://', 1)
+
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
