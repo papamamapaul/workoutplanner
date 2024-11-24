@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Workout starten</h2>
+            </div>
+            <div class="card-body">
+                <h4>Trainingsplan: {{ plan.name }}</h4>
+                
+                <div class="mt-4">
+                    <h5>Übungen im Plan:</h5>
+                    <ul class="list-group mb-4">
+                        {% for exercise in plan.exercises %}
+                        <li class="list-group-item">{{ exercise.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <form method="POST">
+                        <button type="submit" class="btn btn-primary btn-lg">Workout jetzt starten</button>
+                    </form>
+                    <a href="{{ url_for('workout_plans') }}" class="btn btn-secondary">Zurück</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

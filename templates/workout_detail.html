@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="mb-0">Workout Details</h1>
+                <p class="text-muted">{{ workout.date.strftime('%d.%m.%Y %H:%M') }}</p>
+            </div>
+            <a href="{{ url_for('workout_history') }}" class="btn btn-secondary">Zurück zur Historie</a>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Trainingsplan: {{ workout.workout_plan.name }}</h5>
+            </div>
+        </div>
+
+        {% for workout_exercise in workout.exercises %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{{ workout_exercise.exercise.name }}</h5>
+            </div>
+            <div class="card-body">
+                {% if workout_exercise.sets %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Set</th>
+                                <th>Gewicht (kg)</th>
+                                <th>Wiederholungen</th>
+                                <th>Zeit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for set in workout_exercise.sets %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ set.weight }}</td>
+                                <td>{{ set.reps }}</td>
+                                <td>{{ set.created_at.strftime('%H:%M:%S') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light">
+                                <td><strong>Gesamt</strong></td>
+                                <td>
+                                    Ø {{ "%.1f"|format(workout_exercise.sets|sum(attribute='weight') / workout_exercise.sets|length) }} kg
+                                </td>
+                                <td>{{ workout_exercise.sets|sum(attribute='reps') }}</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">Keine Sets aufgezeichnet</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

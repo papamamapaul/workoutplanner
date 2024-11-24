@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Übungen</h5>
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addExerciseModal">
+                    <i class="fas fa-plus"></i> Übung hinzufügen
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for workout_exercise in workout.exercises %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center {% if active_exercise and active_exercise.id == workout_exercise.id %}active{% endif %}">
+                        <a href="{{ url_for('execute_workout', workout_id=workout.id, active_exercise_id=workout_exercise.id) }}" 
+                           class="text-decoration-none flex-grow-1 {% if active_exercise and active_exercise.id == workout_exercise.id %}text-white{% endif %}">
+                            {{ workout_exercise.exercise.name }}
+                            <span class="badge bg-primary rounded-pill">{{ workout_exercise.sets|length }} Sets</span>
+                        </a>
+                        {% if not workout_exercise.sets %}
+                        <form method="POST" class="d-inline">
+                            <input type="hidden" name="workout_exercise_id" value="{{ workout_exercise.id }}">
+                            <button type="submit" name="remove_exercise" value="1" class="btn btn-sm btn-danger" onclick="return confirm('Übung wirklich entfernen?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        {% if active_exercise %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{{ active_exercise.exercise.name }}</h5>
+            </div>
+            <div class="card-body">
+                {% if exercise_history %}
+                <div class="alert alert-info">
+                    <h6>Letzte Workouts:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Sets</th>
+                                    <th>Gewicht (kg)</th>
+                                    <th>Wiederholungen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for workout_exercise in exercise_history %}
+                                <tr>
+                                    <td>{{ workout_exercise.workout.date.strftime('%d.%m.%Y') }}</td>
+                                    <td>{{ workout_exercise.sets|length }}</td>
+                                    <td>
+                                        {% if workout_exercise.sets %}
+                                        {{ workout_exercise.sets|map(attribute='weight')|max }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if workout_exercise.sets %}
+                                        {{ workout_exercise.sets|map(attribute='reps')|sum }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if active_exercise.sets %}
+                <div class="table-responsive mb-4">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Set</th>
+                                <th>Gewicht (kg)</th>
+                                <th>Wiederholungen</th>
+                                <th>Zeit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for set in active_exercise.sets %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ set.weight }}</td>
+                                <td>{{ set.reps }}</td>
+                                <td>{{ set.created_at.strftime('%H:%M:%S') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+
+                <form method="POST" class="mb-3">
+                    <input type="hidden" name="workout_exercise_id" value="{{ active_exercise.id }}">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label for="weight" class="form-label">Gewicht (kg)</label>
+                            <input type="number" step="0.5" class="form-control" id="weight" name="weight" required>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="reps" class="form-label">Wiederholungen</label>
+                            <input type="number" class="form-control" id="reps" name="reps" required>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary">Nächstes Set</button>
+                        <button type="submit" name="finish_exercise" value="1" class="btn btn-success">Übung abschließen</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            Wähle eine Übung aus der Liste aus oder füge eine neue hinzu.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal zum Hinzufügen einer Übung -->
+<div class="modal fade" id="addExerciseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Übung hinzufügen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="exercise_id" class="form-label">Übung auswählen</label>
+                        <select class="form-select" id="exercise_id" name="exercise_id" required>
+                            <option value="">Bitte wählen...</option>
+                            {% for exercise in available_exercises %}
+                            <option value="{{ exercise.id }}">{{ exercise.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" name="add_exercise" value="1" class="btn btn-primary">Hinzufügen</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Workout beenden</a>
+    </div>
+</div>
+{% endblock %}

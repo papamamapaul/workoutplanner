@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Workout-Historie</h1>
+            <a href="{{ url_for('workout_plans') }}" class="btn btn-primary">Neues Workout starten</a>
+        </div>
+
+        {% if workouts %}
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Trainingsplan</th>
+                                <th>Übungen</th>
+                                <th>Sets insgesamt</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for workout in workouts %}
+                            <tr>
+                                <td>{{ workout.date.strftime('%d.%m.%Y %H:%M') }}</td>
+                                <td>{{ workout.workout_plan.name }}</td>
+                                <td>{{ workout.exercises|length }}</td>
+                                <td>
+                                    {% set total_sets = namespace(value=0) %}
+                                    {% for exercise in workout.exercises %}
+                                        {% set total_sets.value = total_sets.value + exercise.sets|length %}
+                                    {% endfor %}
+                                    {{ total_sets.value }}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('workout_detail', workout_id=workout.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">Details</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            Du hast noch keine Workouts durchgeführt. 
+            <a href="{{ url_for('workout_plans') }}" class="alert-link">Starte jetzt dein erstes Workout!</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
